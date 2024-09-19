@@ -36,34 +36,66 @@ const creatAccount = async (req, res) => {
   }
 };
 
-const deleteAccount = (req, res) => {
-  // console.log(req.params.id);
-  const { id } = req.params;
-  const account = accounts.find((account) => id == account.id);
-  const updatedAccounts = accounts.filter((account) => {
-    if (account.id == id) {
-      return false;
+// const deleteAccount = (req, res) => {
+//   // console.log(req.params.id);
+//   const { id } = req.params;
+//   const account = accounts.find((account) => id == account.id);
+//   const updatedAccounts = accounts.filter((account) => {
+//     if (account.id == id) {
+//       return false;
+//     } else {
+//       return true;
+//     }
+//   });
+//   if (!account) {
+//     return res.status(404).json({ eror: "account not found" });
+//   } else {
+//     return res.status(200).json({ data: updatedAccounts });
+//   }
+// };
+const deleteAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foundAccount = await Account.findById(id);
+    if (!foundAccount) {
+      return res.status(404).json({ error: "Account not found" });
     } else {
-      return true;
+      await foundAccount.deleteOne();
+      return res
+        .status(204)
+        .json({ message: "Account deleted", data: foundAccount });
     }
-  });
-  if (!account) {
-    return res.status(404).json({ eror: "account not found" });
-  } else {
-    return res.status(200).json({ data: updatedAccounts });
+  } catch (error) {
+    return res.status(500).json({ error });
   }
 };
 
-const updateAccount = (req, res) => {
-  const { id } = req.params;
-  const account = accounts.find((account) => id == account.id);
+// const updateAccount = (req, res) => {
+//   const { id } = req.params;
+//   const account = accounts.find((account) => id == account.id);
 
-  if (!account) {
-    return res.status(404).json({ eror: "account not found" });
-  } else {
-    account.username = req.body.username;
-    account.funds = req.body.funds;
-    return res.status(201).json({ data: account });
+//   if (!account) {
+//     return res.status(404).json({ eror: "account not found" });
+//   } else {
+//     account.username = req.body.username;
+//     account.funds = req.body.funds;
+//     return res.status(201).json({ data: account });
+//   }
+// };
+
+const updateAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateAccount = await Account.findByIdAndUpdate(id, req.body);
+    if (!updateAccount) {
+      return res.status(404).json({ eror: "account not found" });
+    } else {
+      return res
+        .status(204)
+        .json({ message: "account updated", data: updateAccount });
+    }
+  } catch (eror) {
+    return res.status(500).json({ eror });
   }
 };
 
